@@ -2,7 +2,7 @@
   (name sodium_generated)
   (public_name sodium.generated)
   (c_library_flags :standard -lsodium)
-  (libraries ctypes.stubs sodium_bindings)
+  (libraries ctypes sodium_bindings)
   (modules sodium_generated)
   (c_names sodium_stubs))
 
@@ -20,13 +20,13 @@
 
 (executable
   (name sodium_bindgen)
-  (libraries ctypes ctypes.stubs sodium_bindings sodium_storage)
+  (libraries str ctypes ctypes.cbuf sodium_bindings sodium_storage)
   (modules sodium_bindgen)
   (flags :standard -w -33))
 
 (executable
   (name sodium_typegen)
-  (libraries ctypes ctypes.stubs sodium_types)
+  (libraries str ctypes ctypes.cbuf sodium_types)
   (modules sodium_typegen)
   (flags :standard -w -33))
 

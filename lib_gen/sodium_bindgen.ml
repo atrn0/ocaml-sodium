@@ -7,7 +7,7 @@ module BindStorage(T: functor(S: Sodium_storage.S) -> sig end) = struct
   module Bigbytes = T(Sodium_storage.Bigbytes)
 end
 
-module Bind(F: Cstubs.FOREIGN) = struct
+module Bind(F: FOREIGN) = struct
   include Sodium_bindings.C(F)
   module Sodium' = BindStorage(Make)
   module Random' = BindStorage(Random.Make)
@@ -60,7 +60,7 @@ end
 let () =
   let fmt = Format.formatter_of_out_channel (open_out "sodium_stubs.c") in
   Format.fprintf fmt "#include <sodium.h>@.";
-  Cstubs.write_c fmt ~prefix:"caml_" (module Bind);
+  Cbuf.write_c fmt ~prefix:"caml_" (module Bind);
 
   let fmt = Format.formatter_of_out_channel (open_out "sodium_generated.ml") in
-  Cstubs.write_ml fmt ~prefix:"caml_" (module Bind)
+  Cbuf.write_ml fmt ~prefix:"caml_" (module Bind)

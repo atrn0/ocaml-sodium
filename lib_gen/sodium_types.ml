@@ -17,7 +17,7 @@
 
 module Static = Ctypes_static
 
-module C(F: Cstubs.Types.TYPE) = struct
+module C(F: Cbuf.Types.TYPE) = struct
 
   module Gen_hash(M: sig
     val scope : string
