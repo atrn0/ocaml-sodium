@@ -119,13 +119,7 @@ module Box = struct
   (* Invariant: a nonce is nonce_size bytes long. *)
   type nonce = Bytes.t
 
-  let random_keypair () =
-    let pk, sk = Storage.Bytes.create public_key_size,
-                 Storage.Bytes.create secret_key_size in
-    let ret =
-      C.box_keypair (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
-    assert (ret = 0); (* always returns 0 *)
-    sk, pk
+  let random_keypair = C.box_keypair
 
   let random_nonce () =
     Random.Bytes.generate nonce_size

@@ -20,7 +20,7 @@ open Ctypes
 
 module Type = Sodium_types.C(Sodium_types_detected)
 
-module C(F: Ctypes.FOREIGN) = struct
+module C(F: FOREIGN) = struct
   let prefix = "sodium"
 
   let init    = F.(foreign (prefix^"_init")    (void @-> returning int))
@@ -43,6 +43,7 @@ module C(F: Ctypes.FOREIGN) = struct
 
     module Make(T: Sodium_storage.S) = struct
       let gen  = F.(foreign "randombytes_buf"  (T.ctype @-> size_t @-> returning void))
+      (* TODO: size_t　に対応させる？ *)
     end
   end
 
@@ -58,8 +59,8 @@ module C(F: Ctypes.FOREIGN) = struct
     let zerobytes        = F.foreign (prefix^"_zerobytes")      sz_query_type
     let boxzerobytes     = F.foreign (prefix^"_boxzerobytes")   sz_query_type
 
-    let box_keypair      = F.(foreign (prefix^"_keypair")
-                                     (ocaml_bytes @-> ocaml_bytes @-> returning int))
+    let box_keypair      = F.(foreign (prefix^"_keypair") 
+      (void @-> retbuf (buffer 4 ocaml_bytes @* buffer 8 ocaml_bytes)))
 
     let box_beforenm     = F.(foreign (prefix^"_beforenm")
                                      (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
