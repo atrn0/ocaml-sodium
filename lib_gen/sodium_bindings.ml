@@ -17,10 +17,11 @@
  *)
 
 open Ctypes
+open Cbuf
 
 module Type = Sodium_types.C(Sodium_types_detected)
 
-module C(F: Cstubs.FOREIGN) = struct
+module C(F: Cbuf.FOREIGN) = struct
   let prefix = "sodium"
 
   let init    = F.(foreign (prefix^"_init")    (void @-> returning int))
@@ -43,6 +44,7 @@ module C(F: Cstubs.FOREIGN) = struct
 
     module Make(T: Sodium_storage.S) = struct
       let gen  = F.(foreign "randombytes_buf"  (T.ctype @-> size_t @-> returning void))
+      (* TODO: size_t　に対応させる？ *)
     end
   end
 
@@ -51,19 +53,26 @@ module C(F: Cstubs.FOREIGN) = struct
     let prefix    = "crypto_box_"^primitive
 
     let sz_query_type    = F.(void @-> returning size_t)
-    let publickeybytes   = F.foreign (prefix^"_publickeybytes") sz_query_type
-    let secretkeybytes   = F.foreign (prefix^"_secretkeybytes") sz_query_type
-    let beforenmbytes    = F.foreign (prefix^"_beforenmbytes")  sz_query_type
+    let publickeybytes   = F.foreign (prefix^"_publickeybytes") sz_query_type (* 32バイト *)
+    let secretkeybytes   = F.foreign (prefix^"_secretkeybytes") sz_query_type (* 32バイト *)
+    let beforenmbytes    = F.foreign (prefix^"_beforenmbytes")  sz_query_type (* 32バイト *)
     let noncebytes       = F.foreign (prefix^"_noncebytes")     sz_query_type
     let zerobytes        = F.foreign (prefix^"_zerobytes")      sz_query_type
     let boxzerobytes     = F.foreign (prefix^"_boxzerobytes")   sz_query_type
 
-    let box_keypair      = F.(foreign (prefix^"_keypair")
-                                     (ocaml_bytes @-> ocaml_bytes @-> returning int))
+    let box_keypair_      = F.(foreign (prefix^"_keypair")
+      (ocaml_bytes @-> ocaml_bytes @-> returning int))
+    
+    let box_keypair = F.(foreign (prefix^"_keypair")
+      (void @-> retbuf (buffer 32 ocaml_bytes @* buffer 32 ocaml_bytes) (returning int)))
 
-    let box_beforenm     = F.(foreign (prefix^"_beforenm")
+    let box_beforenm_     = F.(foreign (prefix^"_beforenm")
                                      (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
                                       @-> returning int))
+    let box_beforenm = F.(foreign (prefix^"_beforenm")
+                                      (ocaml_bytes @-> ocaml_bytes @-> 
+                                      retbuf ~cposition:`First  (buffer 32 ocaml_bytes) (returning int)))
+
 
     module Make(T: Sodium_storage.S) = struct
       let box_fn_type      = F.(T.ctype @-> T.ctype @-> ullong
@@ -86,24 +95,42 @@ module C(F: Cstubs.FOREIGN) = struct
     let prefix    = "crypto_sign_"^primitive
 
     let sz_query_type   = F.(void @-> returning size_t)
-    let publickeybytes  = F.foreign (prefix^"_publickeybytes") sz_query_type
-    let secretkeybytes  = F.foreign (prefix^"_secretkeybytes") sz_query_type
+    let publickeybytes  = F.foreign (prefix^"_publickeybytes") sz_query_type (* 32バイト *)
+    let secretkeybytes  = F.foreign (prefix^"_secretkeybytes") sz_query_type (* 64バイト *)
     let bytes           = F.foreign (prefix^"_bytes")          sz_query_type
-    let seedbytes       = F.foreign (prefix^"_seedbytes")      sz_query_type
+    let seedbytes       = F.foreign (prefix^"_seedbytes")      sz_query_type (* 32バイト *)
 
-    let sign_keypair    = F.(foreign (prefix^"_keypair")
+    let sign_keypair_   = F.(foreign (prefix^"_keypair")
                                     (ocaml_bytes @-> ocaml_bytes
                                      @-> returning int))
-    let sign_seed_keypair = F.(foreign (prefix^"_seed_keypair")
+    let sign_keypair    = F.(foreign (prefix^"_keypair")
+                                    (void @-> retbuf (buffer 32 ocaml_bytes @* buffer 64 ocaml_bytes) 
+                                    (returning int)))
+    let sign_seed_keypair_ = F.(foreign (prefix^"_seed_keypair")
                                       (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
                                        @-> returning int))
+    let sign_seed_keypair    = F.(foreign (prefix^"_seed_keypair")
+                    (ocaml_bytes @-> 
+                    retbuf ~cposition:`First (buffer 32 ocaml_bytes @* buffer 64 ocaml_bytes) 
+                    (returning int)))
+
+    let sign_sk_to_seed_ = F.(foreign (prefix^"_sk_to_seed")
+                                    (ocaml_bytes @-> ocaml_bytes
+                                     @-> returning int))
 
     let sign_sk_to_seed = F.(foreign (prefix^"_sk_to_seed")
+                    (ocaml_bytes @->
+                    (retbuf ~cposition:`First (buffer 32 ocaml_bytes)
+                    (returning int))))
+
+    let sign_sk_to_pk_  = F.(foreign (prefix^"_sk_to_pk")
                                     (ocaml_bytes @-> ocaml_bytes
                                      @-> returning int))
+
     let sign_sk_to_pk   = F.(foreign (prefix^"_sk_to_pk")
-                                    (ocaml_bytes @-> ocaml_bytes
-                                     @-> returning int))
+                      (ocaml_bytes @-> 
+                      retbuf ~cposition:`First (buffer 32 ocaml_bytes)
+                      (returning int)))
 
     let to_curve_25519_type = F.(ocaml_bytes @-> ocaml_bytes @-> returning int)
     let sign_pk_to_curve25519 = F.foreign (prefix^"_pk_to_curve25519")

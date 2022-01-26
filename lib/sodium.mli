@@ -57,7 +57,7 @@ module Random : sig
 end
 
 module Box : sig
-  type 'a key
+  type 'a key = Bytes.t
   type secret_key = secret key
   type public_key = public key
   type channel_key = channel key
@@ -81,6 +81,7 @@ module Box : sig
   val nonce_size          : int
 
   (** [random_keypair ()] generates a random key pair. *)
+  val random_keypair_      : unit -> keypair
   val random_keypair      : unit -> keypair
 
   (** [random_nonce ()] generates a random nonce. *)
@@ -103,6 +104,7 @@ module Box : sig
       and the public key [pk], which can be used to speed up processing
       of any number of messages. *)
   val precompute          : secret key -> public key -> channel key
+  val precompute_          : secret key -> public key -> channel key
 
   (** [equal_public_keys a b] checks [a] and [b] for equality in constant
       time. *)
@@ -265,16 +267,20 @@ module Sign : sig
   val seed_size           : int
 
   (** [random_keypair ()] generates a random key pair. *)
+  val random_keypair_      : unit -> keypair
   val random_keypair      : unit -> keypair
 
   (** [seed_keypair seed] generates a key pair from secret [seed]. *)
+  val seed_keypair_        : seed -> keypair
   val seed_keypair        : seed -> keypair
 
   (** [secret_key_to_seed sk] extracts the secret key [sk]'s {!seed}. *)
+  val secret_key_to_seed_  : secret key -> seed
   val secret_key_to_seed  : secret key -> seed
 
   (** [secret_key_to_public_key sk] extract the secret key [sk]'s
       {!public_key}. *)
+  val secret_key_to_public_key_ : secret key -> public key
   val secret_key_to_public_key : secret key -> public key
 
   (** [wipe_key k] overwrites [k] with zeroes. *)

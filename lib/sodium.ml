@@ -119,13 +119,18 @@ module Box = struct
   (* Invariant: a nonce is nonce_size bytes long. *)
   type nonce = Bytes.t
 
-  let random_keypair () =
-    let pk, sk = Storage.Bytes.create public_key_size,
-                 Storage.Bytes.create secret_key_size in
-    let ret =
-      C.box_keypair (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+  let random_keypair (): keypair = 
+    let (pk, sk), ret = C.box_keypair () in
     assert (ret = 0); (* always returns 0 *)
     sk, pk
+
+  let random_keypair_ () =
+    let pk, sk = Storage.Bytes.create public_key_size,
+                  Storage.Bytes.create secret_key_size in
+    let ret =
+      C.box_keypair_ (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+      assert (ret = 0); (* always returns 0 *)
+      sk, pk
 
   let random_nonce () =
     Random.Bytes.generate nonce_size
@@ -144,11 +149,16 @@ module Box = struct
 
   let increment_nonce = increment_be_bytes
 
-  let precompute skey pkey =
+  let precompute_ skey pkey =
     let params = Storage.Bytes.create channel_key_size in
-    let ret = C.box_beforenm (Storage.Bytes.to_ptr params)
+    let ret = C.box_beforenm_ (Storage.Bytes.to_ptr params)
                              (Storage.Bytes.to_ptr pkey)
                              (Storage.Bytes.to_ptr skey) in
+    assert (ret = 0); (* always returns 0 *)
+    params
+
+  let precompute skey pkey =
+    let (params, ret) = C.box_beforenm (Storage.Bytes.to_ptr pkey) (Storage.Bytes.to_ptr skey) in
     assert (ret = 0); (* always returns 0 *)
     params
 
@@ -278,34 +288,54 @@ module Sign = struct
   (* Invariant: a seed is seed_size bytes long. *)
   type seed = Bytes.t
 
-  let random_keypair () =
+  let random_keypair_ () =
     let pk, sk = Storage.Bytes.create public_key_size,
                  Storage.Bytes.create secret_key_size in
     let ret =
-      C.sign_keypair (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+      C.sign_keypair_ (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
     assert (ret = 0); (* always returns 0 *)
     sk, pk
 
-  let seed_keypair seed =
+  let random_keypair () =
+    let (pk, sk), ret = C.sign_keypair () in
+    assert (ret = 0); (* always returns 0 *)
+    sk, pk
+
+  let seed_keypair_ seed =
     let pk, sk = Storage.Bytes.create public_key_size,
                  Storage.Bytes.create secret_key_size in
     let ret =
-      C.sign_seed_keypair (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk)
+      C.sign_seed_keypair_ (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk)
                           (Storage.Bytes.to_ptr seed) in
     assert (ret = 0);
     sk, pk
+  let seed_keypair seed =
+    let (pk, sk), ret = C.sign_seed_keypair (Storage.Bytes.to_ptr seed) in
+    assert (ret = 0);
+    sk, pk
 
-  let secret_key_to_seed sk =
+  let secret_key_to_seed_ sk =
     let seed = Storage.Bytes.create seed_size in
     let ret =
-      C.sign_sk_to_seed (Storage.Bytes.to_ptr seed) (Storage.Bytes.to_ptr sk) in
+      C.sign_sk_to_seed_ (Storage.Bytes.to_ptr seed) (Storage.Bytes.to_ptr sk) in
     assert (ret = 0);
     seed
 
-  let secret_key_to_public_key sk =
+  let secret_key_to_seed sk =
+    let seed, ret =
+      C.sign_sk_to_seed (Storage.Bytes.to_ptr sk) in
+    assert (ret = 0);
+    seed
+
+  let secret_key_to_public_key_ sk =
     let pk = Storage.Bytes.create public_key_size in
     let ret =
-      C.sign_sk_to_pk (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+      C.sign_sk_to_pk_ (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+    assert (ret = 0);
+    pk
+
+  let secret_key_to_public_key sk =
+    let pk, ret = C.sign_sk_to_pk (Storage.Bytes.to_ptr sk) in
     assert (ret = 0);
     pk
 

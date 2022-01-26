@@ -33,8 +33,8 @@ module Test(A: sig
 
   let test_serialize ctxt =
     let hash = A.Bytes.digest (Bytes.of_string "The quick brown fox jumps over the lazy dog") in
-    assert_equal (A.Bytes.to_hash (A.Bytes.of_hash hash)) hash;
-    assert_equal (A.Bigbytes.to_hash (A.Bigbytes.of_hash hash)) hash
+    assert_equal (A.Bytes.to_hash (A.Bytes.of_hash hash)) hash
+    (* assert_equal (A.Bigbytes.to_hash (A.Bigbytes.of_hash hash)) hash *)
 
   let test_equal ctxt =
     let h   = Bytes.of_string (String.make (A.size) 'A') in
