@@ -120,12 +120,17 @@ module C(F: Cbuf.FOREIGN) = struct
 
     let sign_sk_to_seed = F.(foreign (prefix^"_sk_to_seed")
                     (ocaml_bytes @->
-                    (retbuf ~cposition:`First (buffer 32 ocaml_bytes) 
+                    (retbuf ~cposition:`First (buffer 32 ocaml_bytes)
                     (returning int))))
 
-    let sign_sk_to_pk   = F.(foreign (prefix^"_sk_to_pk")
+    let sign_sk_to_pk_  = F.(foreign (prefix^"_sk_to_pk")
                                     (ocaml_bytes @-> ocaml_bytes
                                      @-> returning int))
+
+    let sign_sk_to_pk   = F.(foreign (prefix^"_sk_to_pk")
+                      (ocaml_bytes @-> 
+                      retbuf ~cposition:`First (buffer 32 ocaml_bytes)
+                      (returning int)))
 
     let to_curve_25519_type = F.(ocaml_bytes @-> ocaml_bytes @-> returning int)
     let sign_pk_to_curve25519 = F.foreign (prefix^"_pk_to_curve25519")

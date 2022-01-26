@@ -327,10 +327,15 @@ module Sign = struct
     assert (ret = 0);
     seed
 
-  let secret_key_to_public_key sk =
+  let secret_key_to_public_key_ sk =
     let pk = Storage.Bytes.create public_key_size in
     let ret =
-      C.sign_sk_to_pk (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+      C.sign_sk_to_pk_ (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+    assert (ret = 0);
+    pk
+
+  let secret_key_to_public_key sk =
+    let pk, ret = C.sign_sk_to_pk (Storage.Bytes.to_ptr sk) in
     assert (ret = 0);
     pk
 

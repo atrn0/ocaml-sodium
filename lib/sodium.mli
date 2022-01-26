@@ -280,6 +280,7 @@ module Sign : sig
 
   (** [secret_key_to_public_key sk] extract the secret key [sk]'s
       {!public_key}. *)
+  val secret_key_to_public_key_ : secret key -> public key
   val secret_key_to_public_key : secret key -> public key
 
   (** [wipe_key k] overwrites [k] with zeroes. *)
