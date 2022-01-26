@@ -98,7 +98,7 @@ module C(F: Cbuf.FOREIGN) = struct
     let publickeybytes  = F.foreign (prefix^"_publickeybytes") sz_query_type (* 32バイト *)
     let secretkeybytes  = F.foreign (prefix^"_secretkeybytes") sz_query_type (* 64バイト *)
     let bytes           = F.foreign (prefix^"_bytes")          sz_query_type
-    let seedbytes       = F.foreign (prefix^"_seedbytes")      sz_query_type
+    let seedbytes       = F.foreign (prefix^"_seedbytes")      sz_query_type (* 32バイト *)
 
     let sign_keypair_   = F.(foreign (prefix^"_keypair")
                                     (ocaml_bytes @-> ocaml_bytes
@@ -114,9 +114,15 @@ module C(F: Cbuf.FOREIGN) = struct
                     retbuf ~cposition:`First (buffer 32 ocaml_bytes @* buffer 64 ocaml_bytes) 
                     (returning int)))
 
-    let sign_sk_to_seed = F.(foreign (prefix^"_sk_to_seed")
+    let sign_sk_to_seed_ = F.(foreign (prefix^"_sk_to_seed")
                                     (ocaml_bytes @-> ocaml_bytes
                                      @-> returning int))
+
+    let sign_sk_to_seed = F.(foreign (prefix^"_sk_to_seed")
+                    (ocaml_bytes @->
+                    (retbuf ~cposition:`First (buffer 32 ocaml_bytes) 
+                    (returning int))))
+
     let sign_sk_to_pk   = F.(foreign (prefix^"_sk_to_pk")
                                     (ocaml_bytes @-> ocaml_bytes
                                      @-> returning int))

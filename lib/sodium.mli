@@ -275,6 +275,7 @@ module Sign : sig
   val seed_keypair        : seed -> keypair
 
   (** [secret_key_to_seed sk] extracts the secret key [sk]'s {!seed}. *)
+  val secret_key_to_seed_  : secret key -> seed
   val secret_key_to_seed  : secret key -> seed
 
   (** [secret_key_to_public_key sk] extract the secret key [sk]'s

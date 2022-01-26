@@ -314,10 +314,16 @@ module Sign = struct
     assert (ret = 0);
     sk, pk
 
-  let secret_key_to_seed sk =
+  let secret_key_to_seed_ sk =
     let seed = Storage.Bytes.create seed_size in
     let ret =
-      C.sign_sk_to_seed (Storage.Bytes.to_ptr seed) (Storage.Bytes.to_ptr sk) in
+      C.sign_sk_to_seed_ (Storage.Bytes.to_ptr seed) (Storage.Bytes.to_ptr sk) in
+    assert (ret = 0);
+    seed
+
+  let secret_key_to_seed sk =
+    let seed, ret =
+      C.sign_sk_to_seed (Storage.Bytes.to_ptr sk) in
     assert (ret = 0);
     seed
 
