@@ -57,7 +57,7 @@ module Random : sig
 end
 
 module Box : sig
-  type 'a key
+  type 'a key = Bytes.t
   type secret_key = secret key
   type public_key = public key
   type channel_key = channel key
@@ -103,6 +103,7 @@ module Box : sig
       and the public key [pk], which can be used to speed up processing
       of any number of messages. *)
   val precompute          : secret key -> public key -> channel key
+  val precompute_          : secret key -> public key -> channel key
 
   (** [equal_public_keys a b] checks [a] and [b] for equality in constant
       time. *)

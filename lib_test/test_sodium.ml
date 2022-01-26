@@ -28,6 +28,7 @@ let suite = "Sodium" >::: [
     Test_auth.suite;
     Test_hash.suite;
     Test_generichash.suite;
+    Test_cbuf.suite;
   ]
 
 let _ =

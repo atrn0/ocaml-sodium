@@ -119,10 +119,18 @@ module Box = struct
   (* Invariant: a nonce is nonce_size bytes long. *)
   type nonce = Bytes.t
 
-  let random_keypair () = 
-    let keys, ret = C.box_keypair () in
+  let random_keypair (): keypair = 
+    let (pk, sk), ret = C.box_keypair () in
     assert (ret = 0); (* always returns 0 *)
-    keys
+    sk, pk
+
+  let _random_keypair () =
+    let pk, sk = Storage.Bytes.create public_key_size,
+                  Storage.Bytes.create secret_key_size in
+    let ret =
+      C.box_keypair_ (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+      assert (ret = 0); (* always returns 0 *)
+      sk, pk
 
   let random_nonce () =
     Random.Bytes.generate nonce_size
@@ -141,11 +149,16 @@ module Box = struct
 
   let increment_nonce = increment_be_bytes
 
-  let precompute skey pkey =
+  let precompute_ skey pkey =
     let params = Storage.Bytes.create channel_key_size in
-    let ret = C.box_beforenm (Storage.Bytes.to_ptr params)
+    let ret = C.box_beforenm_ (Storage.Bytes.to_ptr params)
                              (Storage.Bytes.to_ptr pkey)
                              (Storage.Bytes.to_ptr skey) in
+    assert (ret = 0); (* always returns 0 *)
+    params
+
+  let precompute skey pkey =
+    let (params, ret) = C.box_beforenm (Storage.Bytes.to_ptr pkey) (Storage.Bytes.to_ptr skey) in
     assert (ret = 0); (* always returns 0 *)
     params
 

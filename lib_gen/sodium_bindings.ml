@@ -53,19 +53,26 @@ module C(F: Cbuf.FOREIGN) = struct
     let prefix    = "crypto_box_"^primitive
 
     let sz_query_type    = F.(void @-> returning size_t)
-    let publickeybytes   = F.foreign (prefix^"_publickeybytes") sz_query_type
-    let secretkeybytes   = F.foreign (prefix^"_secretkeybytes") sz_query_type
-    let beforenmbytes    = F.foreign (prefix^"_beforenmbytes")  sz_query_type
+    let publickeybytes   = F.foreign (prefix^"_publickeybytes") sz_query_type (* 32バイト *)
+    let secretkeybytes   = F.foreign (prefix^"_secretkeybytes") sz_query_type (* 32バイト *)
+    let beforenmbytes    = F.foreign (prefix^"_beforenmbytes")  sz_query_type (* 32バイト *)
     let noncebytes       = F.foreign (prefix^"_noncebytes")     sz_query_type
     let zerobytes        = F.foreign (prefix^"_zerobytes")      sz_query_type
     let boxzerobytes     = F.foreign (prefix^"_boxzerobytes")   sz_query_type
 
-    let box_keypair      = F.(foreign (prefix^"_keypair") 
-      (void @-> retbuf (buffer 8 ocaml_bytes @* buffer 8 ocaml_bytes) (returning int)))
+    let box_keypair_      = F.(foreign (prefix^"_keypair")
+      (ocaml_bytes @-> ocaml_bytes @-> returning int))
+    
+    let box_keypair = F.(foreign (prefix^"_keypair")
+      (void @-> retbuf (buffer 32 ocaml_bytes @* buffer 32 ocaml_bytes) (returning int)))
 
-    let box_beforenm     = F.(foreign (prefix^"_beforenm")
+    let box_beforenm_     = F.(foreign (prefix^"_beforenm")
                                      (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
                                       @-> returning int))
+    let box_beforenm = F.(foreign (prefix^"_beforenm")
+                                      (ocaml_bytes @-> ocaml_bytes @-> 
+                                      retbuf ~cposition:`First  (buffer 32 ocaml_bytes) (returning int)))
+
 
     module Make(T: Sodium_storage.S) = struct
       let box_fn_type      = F.(T.ctype @-> T.ctype @-> ullong
@@ -88,8 +95,8 @@ module C(F: Cbuf.FOREIGN) = struct
     let prefix    = "crypto_sign_"^primitive
 
     let sz_query_type   = F.(void @-> returning size_t)
-    let publickeybytes  = F.foreign (prefix^"_publickeybytes") sz_query_type
-    let secretkeybytes  = F.foreign (prefix^"_secretkeybytes") sz_query_type
+    let publickeybytes  = F.foreign (prefix^"_publickeybytes") sz_query_type (* 4バイト *)
+    let secretkeybytes  = F.foreign (prefix^"_secretkeybytes") sz_query_type (* 8バイト *)
     let bytes           = F.foreign (prefix^"_bytes")          sz_query_type
     let seedbytes       = F.foreign (prefix^"_seedbytes")      sz_query_type
 
