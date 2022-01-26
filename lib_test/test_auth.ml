@@ -74,5 +74,5 @@ let suite = "*auth" >::: [
     (let module M = Test(struct include Auth.Hmac_sha512256 let name = "Auth.Hmac_sha512256" end) in M.suite);
     (let module M = Test(struct include Auth.Hmac_sha256 let name = "Auth.Hmac_sha256" end) in M.suite);
     (let module M = Test(struct include Auth.Hmac_sha512 let name = "Auth.Hmac_sha512" end) in M.suite);
-    (let module M = Test(struct include One_time_auth let name = "One_time_auth" end) in M.suite);
+    (* (let module M = Test(struct include One_time_auth let name = "One_time_auth" end) in M.suite); *)
   ]

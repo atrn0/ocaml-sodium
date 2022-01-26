@@ -9,7 +9,7 @@
 (library
   (name sodium_bindings)
   (public_name sodium.bindings)
-  (libraries ctypes sodium_storage sodium_types integers)
+  (libraries ctypes sodium_storage sodium_types integers str ctypes.cbuf)
   (modules sodium_bindings sodium_types_detected))
 
 (library
