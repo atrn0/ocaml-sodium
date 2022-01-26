@@ -106,9 +106,13 @@ module C(F: Cbuf.FOREIGN) = struct
     let sign_keypair    = F.(foreign (prefix^"_keypair")
                                     (void @-> retbuf (buffer 32 ocaml_bytes @* buffer 64 ocaml_bytes) 
                                     (returning int)))
-    let sign_seed_keypair = F.(foreign (prefix^"_seed_keypair")
+    let sign_seed_keypair_ = F.(foreign (prefix^"_seed_keypair")
                                       (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
                                        @-> returning int))
+    let sign_seed_keypair    = F.(foreign (prefix^"_seed_keypair")
+                    (ocaml_bytes @-> 
+                    retbuf ~cposition:`First (buffer 32 ocaml_bytes @* buffer 64 ocaml_bytes) 
+                    (returning int)))
 
     let sign_sk_to_seed = F.(foreign (prefix^"_sk_to_seed")
                                     (ocaml_bytes @-> ocaml_bytes

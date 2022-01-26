@@ -301,12 +301,16 @@ module Sign = struct
     assert (ret = 0); (* always returns 0 *)
     sk, pk
 
-  let seed_keypair seed =
+  let seed_keypair_ seed =
     let pk, sk = Storage.Bytes.create public_key_size,
                  Storage.Bytes.create secret_key_size in
     let ret =
-      C.sign_seed_keypair (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk)
+      C.sign_seed_keypair_ (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk)
                           (Storage.Bytes.to_ptr seed) in
+    assert (ret = 0);
+    sk, pk
+  let seed_keypair seed =
+    let (pk, sk), ret = C.sign_seed_keypair (Storage.Bytes.to_ptr seed) in
     assert (ret = 0);
     sk, pk
 

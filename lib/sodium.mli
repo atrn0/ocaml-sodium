@@ -271,6 +271,7 @@ module Sign : sig
   val random_keypair      : unit -> keypair
 
   (** [seed_keypair seed] generates a key pair from secret [seed]. *)
+  val seed_keypair_        : seed -> keypair
   val seed_keypair        : seed -> keypair
 
   (** [secret_key_to_seed sk] extracts the secret key [sk]'s {!seed}. *)
