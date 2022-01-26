@@ -124,7 +124,7 @@ module Box = struct
     assert (ret = 0); (* always returns 0 *)
     sk, pk
 
-  let _random_keypair () =
+  let random_keypair_ () =
     let pk, sk = Storage.Bytes.create public_key_size,
                   Storage.Bytes.create secret_key_size in
     let ret =
@@ -288,11 +288,16 @@ module Sign = struct
   (* Invariant: a seed is seed_size bytes long. *)
   type seed = Bytes.t
 
-  let random_keypair () =
+  let random_keypair_ () =
     let pk, sk = Storage.Bytes.create public_key_size,
                  Storage.Bytes.create secret_key_size in
     let ret =
-      C.sign_keypair (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+      C.sign_keypair_ (Storage.Bytes.to_ptr pk) (Storage.Bytes.to_ptr sk) in
+    assert (ret = 0); (* always returns 0 *)
+    sk, pk
+
+  let random_keypair () =
+    let (pk, sk), ret = C.sign_keypair () in
     assert (ret = 0); (* always returns 0 *)
     sk, pk
 

@@ -95,14 +95,17 @@ module C(F: Cbuf.FOREIGN) = struct
     let prefix    = "crypto_sign_"^primitive
 
     let sz_query_type   = F.(void @-> returning size_t)
-    let publickeybytes  = F.foreign (prefix^"_publickeybytes") sz_query_type (* 4バイト *)
-    let secretkeybytes  = F.foreign (prefix^"_secretkeybytes") sz_query_type (* 8バイト *)
+    let publickeybytes  = F.foreign (prefix^"_publickeybytes") sz_query_type (* 32バイト *)
+    let secretkeybytes  = F.foreign (prefix^"_secretkeybytes") sz_query_type (* 64バイト *)
     let bytes           = F.foreign (prefix^"_bytes")          sz_query_type
     let seedbytes       = F.foreign (prefix^"_seedbytes")      sz_query_type
 
-    let sign_keypair    = F.(foreign (prefix^"_keypair")
+    let sign_keypair_   = F.(foreign (prefix^"_keypair")
                                     (ocaml_bytes @-> ocaml_bytes
                                      @-> returning int))
+    let sign_keypair    = F.(foreign (prefix^"_keypair")
+                                    (void @-> retbuf (buffer 32 ocaml_bytes @* buffer 64 ocaml_bytes) 
+                                    (returning int)))
     let sign_seed_keypair = F.(foreign (prefix^"_seed_keypair")
                                       (ocaml_bytes @-> ocaml_bytes @-> ocaml_bytes
                                        @-> returning int))

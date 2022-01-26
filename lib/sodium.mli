@@ -81,6 +81,7 @@ module Box : sig
   val nonce_size          : int
 
   (** [random_keypair ()] generates a random key pair. *)
+  val random_keypair_      : unit -> keypair
   val random_keypair      : unit -> keypair
 
   (** [random_nonce ()] generates a random nonce. *)
@@ -266,6 +267,7 @@ module Sign : sig
   val seed_size           : int
 
   (** [random_keypair ()] generates a random key pair. *)
+  val random_keypair_      : unit -> keypair
   val random_keypair      : unit -> keypair
 
   (** [seed_keypair seed] generates a key pair from secret [seed]. *)
